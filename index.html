@@ -2,8 +2,26 @@
 <html lang="zh">
 
 <head>
+
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<meta name="theme-color"
+content="#1677ff">
+
+<meta name="apple-mobile-web-app-capable"
+content="yes">
+
+<meta name="apple-mobile-web-app-title"
+content="RF遥控器">
+
+<meta name="apple-mobile-web-app-status-bar-style"
+content="black-translucent">
+
+<link rel="manifest"
+href="manifest.json">
 
 <title>ESP32 RF 遥控器</title>
 
@@ -116,6 +134,7 @@ D
 <script>
 
 let characteristic;
+let device;
 
 const serviceUUID =
 "12345678-1234-1234-1234-1234567890ab";
@@ -129,7 +148,7 @@ document
 
     try {
 
-        const device =
+        device =
         await navigator.bluetooth.requestDevice({
 
             filters:[
@@ -193,4 +212,3 @@ async function sendCmd(cmd){
 </script>
 
 </body>
-</html>

@@ -1,96 +1,196 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
+
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>ESP32 RF 遥控器</title>
 
 <style>
 
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  min-height: 100vh;
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
+html, body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    background:#f4f4f4;
+    font-family:Arial,sans-serif;
 }
 
-body {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+body{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
 }
 
-.container {
-  width: 100%;
-  max-width: 420px;
-  padding-top: 90px;
-  text-align: center;
+.container{
+    width:100%;
+    max-width:430px;
+    text-align:center;
+    padding-top:80px;
 }
 
-h2 {
-  font-size: 22px;
-  margin-bottom: 30px;
+h2{
+    font-size:28px;
+    margin-bottom:35px;
 }
 
-#connect {
-  width: 260px;
-  height: 70px;
-  font-size: 28px;
-  margin-bottom: 45px;
-  border-radius: 16px;
-  border: none;
-  background: #13c2c2;
-  color: white;
+#connect{
+    width:280px;
+    height:75px;
+    font-size:30px;
+    border:none;
+    border-radius:18px;
+    background:#18c3c8;
+    color:white;
+    margin-bottom:50px;
 }
 
-.key-grid {
-  display: grid;
-  grid-template-columns: 130px 130px;
-  gap: 22px 28px;
-  justify-content: center;
+.grid{
+    display:grid;
+    grid-template-columns:140px 140px;
+    justify-content:center;
+    gap:28px;
 }
 
-.key-grid button {
-  width: 130px;
-  height: 75px;
-  font-size: 30px;
-  border-radius: 14px;
-  border: none;
-  background: #1677ff;
-  color: white;
+.grid button{
+    width:140px;
+    height:85px;
+    font-size:38px;
+    border:none;
+    border-radius:18px;
+    background:#1e73ff;
+    color:white;
 }
 
-button:active {
-  transform: scale(0.96);
+button:active{
+    transform:scale(0.96);
 }
 
-#status {
-  margin-top: 35px;
-  font-size: 22px;
+#status{
+    margin-top:40px;
+    font-size:24px;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-  <h2>ESP32 RF 遥控器</h2>
+<h2>ESP32 RF 遥控器</h2>
 
-  <button id="connect">连接 ESP32</button>
+<button id="connect">
+连接 ESP32
+</button>
 
-  <div class="key-grid">
-    <button onclick="sendCmd('A')">A</button>
-    <button onclick="sendCmd('B')">B</button>
-    <button onclick="sendCmd('C')">C</button>
-    <button onclick="sendCmd('D')">D</button>
-  </div>
+<div class="grid">
 
-  <p id="status">未连接</p>
+<button onclick="sendCmd('A')">
+A
+</button>
+
+<button onclick="sendCmd('B')">
+B
+</button>
+
+<button onclick="sendCmd('C')">
+C
+</button>
+
+<button onclick="sendCmd('D')">
+D
+</button>
 
 </div>
+
+<p id="status">
+未连接
+</p>
+
+</div>
+
+<script>
+
+let characteristic;
+
+const serviceUUID =
+"12345678-1234-1234-1234-1234567890ab";
+
+const characteristicUUID =
+"abcd1234-5678-90ab-cdef-1234567890ab";
+
+document
+.getElementById("connect")
+.onclick = async () => {
+
+    try {
+
+        const device =
+        await navigator.bluetooth.requestDevice({
+
+            filters:[
+                {name:"ESP32_RF"}
+            ],
+
+            optionalServices:[
+                serviceUUID
+            ]
+        });
+
+        const server =
+        await device.gatt.connect();
+
+        const service =
+        await server.getPrimaryService(
+            serviceUUID
+        );
+
+        characteristic =
+        await service.getCharacteristic(
+            characteristicUUID
+        );
+
+        document.getElementById(
+            "status"
+        ).innerText =
+        "已连接 ESP32_RF";
+
+    } catch(error){
+
+        document.getElementById(
+            "status"
+        ).innerText =
+        "连接失败";
+
+        console.log(error);
+    }
+};
+
+async function sendCmd(cmd){
+
+    if(!characteristic){
+
+        alert("请先连接 ESP32");
+        return;
+    }
+
+    const data =
+    new TextEncoder().encode(cmd);
+
+    await characteristic
+    .writeValueWithoutResponse(data);
+
+    document.getElementById(
+        "status"
+    ).innerText =
+    "已发送：" + cmd;
+}
+
+</script>
 
 </body>
 </html>

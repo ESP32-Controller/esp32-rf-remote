@@ -208,6 +208,10 @@ async function sendCmd(cmd){
     await characteristic
     .writeValueWithoutResponse(data);
 
+    await new Promise(
+      r => setTimeout(r, 30)
+    );
+
     document
     .getElementById("status")
     .innerText =
